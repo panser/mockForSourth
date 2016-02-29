@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>mockForSourth</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <link rel="stylesheet" href="index.css" />
+
+</head>
+<body>
+
+    <!--<div id="map"></div>-->
+    <div class="container-fluid">
+
+        <div class="row-fluid col-lg-10">
+            <div id="map-parent" class="span12">
+                <div id="map" class="map"></div>
+            </div>
+        </div>
+
+        <div id="menu" class="col-lg-2">
+            <!--<a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">-->
+                <!--Edit-->
+            <!--</a>-->
+            <!--<div class="collapse in width" id="collapseExample">-->
+                <!--<div class="well">-->
+
+                    <form class="form-horizontal" >
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">Floor</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="inputEmail3" placeholder="Floor">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Rooms</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="inputPassword3" placeholder="Number of rooms">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox"> Extra hit
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                                only cats
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                                only dogs
+                            </label>
+                        </div>
+                        <div class="radio disabled">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios3" value="option3" disabled>
+                                I love pets
+                            </label>
+                        </div>
+
+                        <select class="form-control" id="someSelect">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-default">Update</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        <!--</div>-->
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-2.2.1.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet-src.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            var defLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                opacity: 0.8
+            });
+            var map = new L.Map('map', {
+                layers: [
+                    defLayer
+                ]
+            });
+            map.setView([50.5075872, 30.45520663], 15);
+
+
+//            map.on('mousemove', function(mouseEvent) {
+//                console.log(mouseEvent.latlng.lat + ':' + mouseEvent.latlng.lng)
+//            });
+
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            var geoLayer = null;
+            oneRegionLayer = null;
+            onEachFeature = function(feature, layer) {
+                layer.on({
+                    click: function(evt) {
+                        if (oneRegionLayer != null) {
+                            map.removeLayer(oneRegionLayer);
+                        }
+                        oneRegionLayer = L.geoJson(feature, {
+                            fill: false
+                            , pointerEvents: 'none'
+                        });
+                        map.addLayer(oneRegionLayer);
+
+                        changeStyleWhileClickOnRegion(feature);
+
+                        $('#inputEmail3').val(getRandomInt(1,20));
+                        $('#inputPassword3').val(getRandomInt(1,5));
+                        $('#someSelect').val(getRandomInt(1,5));
+                    }
+                });
+            };
+            changeStyleWhileClickOnRegion = function(feature){
+                geoLayer.setStyle(function(clickedFeature){
+                    var newStyle;
+
+                    if(clickedFeature !== feature) {
+                        newStyle = {
+                            fillOpacity: 0.3
+                        };
+                    }else{
+                        newStyle = {
+                            fillOpacity: 0.9
+                        };
+                    }
+
+                    return newStyle;
+                });
+            };
+            $.ajax({
+                dataType: 'json',
+                url: 'mockforsourth.geojson',
+                async: false
+            })
+            .done(function (data) {
+                geoLayer = L.geoJson(data, {
+                    weight: 4
+                    , fillOpacity: 0.5
+                    , onEachFeature: onEachFeature
+                });
+                map.addLayer(geoLayer);
+            })
+            ;
+
+
+        });
+
+
+    </script>
+
+</body>
+</html>

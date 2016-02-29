@@ -1,0 +1,23 @@
+
+html, body, .container-fluid, .row-fluid, #map-parent {
+    height: 100%;
+}
+#map {
+    height: 100%;
+    /*width: 80%;*/
+}
+
+#menu {
+    /*width: 20%;*/
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    /*right: 0;*/
+}
+
+/*#collapseExample{*/
+    /*float:right;*/
+/*}*/
+
+/*.form-horizontal .checkbox, .form-horizontal .radio {*/
+    /*padding-right: 100px;*/
+/*}*/
